@@ -104,7 +104,6 @@
             <groupId>com.ctrip.framework.apollo</groupId>
             <artifactId>apollo-openapi</artifactId>
             <version>1.2.0</version>
-            <scope>test</scope>
         </dependency>
 
         <!--for Zookeeper rule publisher sample-->
@@ -130,6 +129,15 @@
         	<artifactId>system-rules</artifactId>
         	<version>1.16.1</version>
         	<scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-apollo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-extension</artifactId>
         </dependency>
     </dependencies>
 
