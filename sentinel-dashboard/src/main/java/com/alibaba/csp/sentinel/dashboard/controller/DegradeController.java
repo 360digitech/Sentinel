@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
+import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
@@ -52,7 +52,7 @@ public class DegradeController {
     @Autowired
     private InMemDegradeRuleStore repository;
     @Autowired
-    private SentinelApiClient sentinelApiClient;
+    private SentinelApolloApiClient sentinelApiClient;
 
     @Autowired
     private AuthService<HttpServletRequest> authService;
@@ -118,6 +118,7 @@ public class DegradeController {
             return Result.ofFail(-1, "Invalid grade: " + grade);
         }
         DegradeRuleEntity entity = new DegradeRuleEntity();
+        entity.setId(sentinelApiClient.nextDegradeRuleId(app));
         entity.setApp(app.trim());
         entity.setIp(ip.trim());
         entity.setPort(port);

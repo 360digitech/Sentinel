@@ -15,13 +15,6 @@
  */
 package com.alibaba.csp.sentinel.dashboard.rule.apollo;
 
-import com.alibaba.csp.sentinel.log.RecordLog;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 /**
  * @author caodegao
  * @data 2019-06-27
@@ -33,13 +26,6 @@ public final class ApolloConfigUtil {
     public static final String DEGRADE_DATA_ID_POSTFIX = "-degrade-rules";
     public static final String AUTHORITY_DATA_ID_POSTFIX = "-authority-rules";
     public static final String FLOW_DATA_ID_POSTFIX = "-flow-rules";
-
-    public static final String APP_ID = "sentinel";
-
-
-    public static final String ENV = "env";
-    public static final String CLUSTER_NAME = "clusterName";
-    public static final String NAMESPACE_NAME = "namespaceName";
 
     private ApolloConfigUtil() {
     }
@@ -62,25 +48,5 @@ public final class ApolloConfigUtil {
 
     public static String getParamFlowDataId(String appName) {
         return String.format("%s%s", appName, PARAM_FLOW_DATA_ID_POSTFIX);
-    }
-
-    public static String getProperty(String key, String defaultValue) {
-        return properties.getProperty(key, defaultValue);
-    }
-
-    private static Properties properties = loadProperties();
-
-    private static final String PROPERTIES_PATH = "/home/q/sentinel/sentinel-app/config/apollo.properties";
-
-    private static Properties loadProperties() {
-        Properties properties = new Properties();
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(PROPERTIES_PATH);
-            properties.load(inputStream);
-        } catch (IOException e) {
-            RecordLog.warn("[ApolloConfigUtil] WARN: loadPropertis failed", e);
-        }
-        return properties;
     }
 }

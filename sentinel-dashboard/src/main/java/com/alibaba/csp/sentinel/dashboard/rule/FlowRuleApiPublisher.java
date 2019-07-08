@@ -18,7 +18,7 @@ package com.alibaba.csp.sentinel.dashboard.rule;
 import java.util.List;
 import java.util.Set;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
+import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.util.StringUtil;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 public class FlowRuleApiPublisher implements DynamicRulePublisher<List<FlowRuleEntity>> {
 
     @Autowired
-    private SentinelApiClient sentinelApiClient;
+    private SentinelApolloApiClient sentinelApiClient;
     @Autowired
     private AppManagement appManagement;
 

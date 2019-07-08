@@ -5,6 +5,7 @@ import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 抽象类,获取和保存方法
@@ -16,6 +17,14 @@ public abstract class AbstractRuleApolloProvider {
 
     @Autowired
     private ApolloOpenApiClient apolloOpenApiClient;
+    @Value("${apollo.app.id}")
+    private String appid;
+    @Value("${apollo.env}")
+    private String env;
+    @Value("${apollo.cluster.name}")
+    private String clusterName;
+    @Value("${apollo.namespace.mame}")
+    private String namespaceName;
 
     /**
      * 获取配置
@@ -24,11 +33,8 @@ public abstract class AbstractRuleApolloProvider {
      * @return
      */
     public String getRulesByApollo(String app, String ruleType) {
-        String env = ApolloConfigUtil.getProperty(ApolloConfigUtil.ENV, "DEV");
-        String clusterName = ApolloConfigUtil.getProperty(ApolloConfigUtil.CLUSTER_NAME, "default");
-        String namespaceName = ApolloConfigUtil.getProperty(ApolloConfigUtil.NAMESPACE_NAME, "MSF.sentinel.rules");
         String flowDataId = getRuleType(app, ruleType);
-        OpenNamespaceDTO openNamespaceDTO = apolloOpenApiClient.getNamespace(ApolloConfigUtil.APP_ID, env, clusterName, namespaceName);
+        OpenNamespaceDTO openNamespaceDTO = apolloOpenApiClient.getNamespace(appid, env, clusterName, namespaceName);
         return openNamespaceDTO
                 .getItems()
                 .stream()
@@ -45,9 +51,6 @@ public abstract class AbstractRuleApolloProvider {
      * @param rules
      */
     public void publish2Apollo(String app, String ruleType, String rules) {
-        String env = ApolloConfigUtil.getProperty(ApolloConfigUtil.ENV, "DEV");
-        String clusterName = ApolloConfigUtil.getProperty(ApolloConfigUtil.CLUSTER_NAME, "default");
-        String namespaceName = ApolloConfigUtil.getProperty(ApolloConfigUtil.NAMESPACE_NAME, "MSF.sentinel.rules");
         // Increase the configuration
         String flowDataId = getRuleType(app, ruleType);
         OpenItemDTO openItemDTO = new OpenItemDTO();
@@ -55,7 +58,7 @@ public abstract class AbstractRuleApolloProvider {
         openItemDTO.setValue(rules);
         openItemDTO.setComment("Program auto-join");
         openItemDTO.setDataChangeCreatedBy("apollo");
-        apolloOpenApiClient.createOrUpdateItem(ApolloConfigUtil.APP_ID, env, clusterName, namespaceName, openItemDTO);
+        apolloOpenApiClient.createOrUpdateItem(appid, env, clusterName, namespaceName, openItemDTO);
 
         // Release configuration
         NamespaceReleaseDTO namespaceReleaseDTO = new NamespaceReleaseDTO();
@@ -63,7 +66,7 @@ public abstract class AbstractRuleApolloProvider {
         namespaceReleaseDTO.setReleaseComment("Modify or add configurations");
         namespaceReleaseDTO.setReleasedBy("apollo");
         namespaceReleaseDTO.setReleaseTitle("Modify or add configurations");
-        apolloOpenApiClient.publishNamespace(ApolloConfigUtil.APP_ID, env, clusterName, namespaceName, namespaceReleaseDTO);
+        apolloOpenApiClient.publishNamespace(appid, env, clusterName, namespaceName, namespaceReleaseDTO);
     }
 
     public static final String FLOW = "Flow";

@@ -19,6 +19,7 @@ import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.*;
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.fastjson.JSON;
 import com.ctrip.framework.apollo.openapi.client.ApolloOpenApiClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -81,11 +82,16 @@ public class ApolloConfig {
         return JSON::toJSONString;
     }
 
+    @Value("${apollo.token}")
+    private String token;
+    @Value("${apollo.portal.url}")
+    private String portalUrl;
+
     @Bean
     public ApolloOpenApiClient apolloOpenApiClient() {
         ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
-                .withPortalUrl(ApolloConfigUtil.getProperty("portalUrl", "http://apollo.360haojie.loan:8070"))
-                .withToken(ApolloConfigUtil.getProperty("token", "a051efe37924a77f1b9ce4b0395625e82f3abb0b"))
+                .withPortalUrl(portalUrl)
+                .withToken(token)
                 .build();
         return client;
 

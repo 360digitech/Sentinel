@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
+import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
@@ -56,7 +56,7 @@ public class AuthorityRuleController {
     private final Logger logger = LoggerFactory.getLogger(AuthorityRuleController.class);
 
     @Autowired
-    private SentinelApiClient sentinelApiClient;
+    private SentinelApolloApiClient sentinelApiClient;
     @Autowired
     private RuleRepository<AuthorityRuleEntity, Long> repository;
 
@@ -127,7 +127,7 @@ public class AuthorityRuleController {
         if (checkResult != null) {
             return checkResult;
         }
-        entity.setId(null);
+        entity.setId(sentinelApiClient.nextAuthorityRuleId(entity.getApp()));
         Date date = new Date();
         entity.setGmtCreate(date);
         entity.setGmtModified(date);

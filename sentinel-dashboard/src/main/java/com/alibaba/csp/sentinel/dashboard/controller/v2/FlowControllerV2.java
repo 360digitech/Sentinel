@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
+import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
@@ -66,6 +67,8 @@ public class FlowControllerV2 {
     @Autowired
     @Qualifier("flowRuleDefaultPublisher")
     private DynamicRulePublisher<List<FlowRuleEntity>> rulePublisher;
+    @Autowired
+    private SentinelApolloApiClient sentinelApiClient;
 
     @Autowired
     private AuthService<HttpServletRequest> authService;
@@ -149,7 +152,7 @@ public class FlowControllerV2 {
         if (checkResult != null) {
             return checkResult;
         }
-        entity.setId(null);
+        entity.setId(sentinelApiClient.nextFlowRuleId(entity.getApp()));
         Date date = new Date();
         entity.setGmtCreate(date);
         entity.setGmtModified(date);

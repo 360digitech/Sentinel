@@ -16,14 +16,10 @@
 package com.alibaba.csp.sentinel.dashboard.client;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.*;
-import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.dashboard.repository.rule.RuleRepository;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;
-import com.alibaba.csp.sentinel.dashboard.util.AsyncUtils;
 import com.alibaba.csp.sentinel.util.AssertUtil;
-import com.alibaba.csp.sentinel.util.StringUtil;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +27,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author cookiejoo
@@ -46,10 +41,6 @@ public class SentinelApolloApiClient {
     private static final String SYSTEM_RULE_TYPE = "system";
     private static final String AUTHORITY_TYPE = "authority";
     private static final String PARAM_FLOW_TYPE = "paramFlow";
-
-
-    @Autowired
-    private AppManagement appManagement;
 
     public SentinelApolloApiClient() {
 
@@ -76,25 +67,11 @@ public class SentinelApolloApiClient {
      * @return all retrieved parameter flow rules
      * @since 0.2.1
      */
-    public CompletableFuture<List<ParamFlowRuleEntity>> fetchParamFlowRulesOfMachine(String app, String ip, int port) {
-        try {
-            AssertUtil.notEmpty(app, "Bad app name");
-            AssertUtil.notEmpty(ip, "Bad machine IP");
-            AssertUtil.isTrue(port > 0, "Bad machine port");
-            CompletableFuture<List<ParamFlowRuleEntity>> completableFuture = new CompletableFuture<>();
-            return completableFuture.thenApply(rules -> {
-                        try {
-                            return paramFlowRuleProvider.getRules(app);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return Lists.newArrayList();
-                        }
-                    }
-            );
-        } catch (Exception e) {
-            logger.error("Error when fetching parameter flow rules", e);
-            return AsyncUtils.newFailedFuture(e);
-        }
+    public List<ParamFlowRuleEntity> fetchParamFlowRulesOfMachine(String app, String ip, int port) throws Exception{
+        AssertUtil.notEmpty(app, "Bad app name");
+        AssertUtil.notEmpty(ip, "Bad machine IP");
+        AssertUtil.isTrue(port > 0, "Bad machine port");
+        return paramFlowRuleProvider.getRules(app);
     }
 
     /**
@@ -114,22 +91,17 @@ public class SentinelApolloApiClient {
     }
 
     /**
-     *
      * @param app
      * @param ip
      * @param port
      * @param rules
      * @return
      */
-    public CompletableFuture<Void> setParamFlowRuleOfMachine(String app, String ip, int port, List<ParamFlowRuleEntity> rules) {
-        if (rules == null) {
-            return CompletableFuture.completedFuture(null);
-        }
-        if (StringUtil.isBlank(ip) || port <= 0) {
-            return AsyncUtils.newFailedFuture(new IllegalArgumentException("Invalid parameter"));
-        }
+    public void setParamFlowRuleOfMachine(String app, String ip, int port, List<ParamFlowRuleEntity> rules) {
+        AssertUtil.notEmpty(app, "Bad app name");
+        AssertUtil.notEmpty(ip, "Bad machine IP");
+        AssertUtil.isTrue(port > 0, "Bad machine port");
         setRules(app, PARAM_FLOW_TYPE, rules);
-        return CompletableFuture.completedFuture(null);
     }
 
     /**
@@ -247,12 +219,58 @@ public class SentinelApolloApiClient {
     }
 
     @Autowired
-    private RuleRepository<AuthorityRuleEntity, Long> repository;
-    private long nextId(String app) {
-        List<AuthorityRuleEntity> list = repository.findAllByApp(app);
+    private RuleRepository<AuthorityRuleEntity, Long> authorityRepository;
+    @Autowired
+    private RuleRepository<DegradeRuleEntity, Long> degradeRepository;
+    @Autowired
+    private RuleRepository<FlowRuleEntity, Long> flowRepository;
+    @Autowired
+    private RuleRepository<ParamFlowRuleEntity, Long> paramFlowRepository;
+    @Autowired
+    private RuleRepository<SystemRuleEntity, Long> systemRepository;
+
+    /**
+     * 获取id值
+     *
+     * @param app
+     * @return
+     */
+    public long nextSystemRuleId(String app) {
+        List<SystemRuleEntity> list = systemRepository.findAllByApp(app);
+        return nextId(list);
+    }
+
+    public long nextParamFlowId(String app) {
+        List<ParamFlowRuleEntity> list = paramFlowRepository.findAllByApp(app);
+        return nextId(list);
+    }
+
+    public long nextFlowRuleId(String app) {
+        List<FlowRuleEntity> list = flowRepository.findAllByApp(app);
+        return nextId(list);
+    }
+
+    public long nextAuthorityRuleId(String app) {
+        List<AuthorityRuleEntity> list = authorityRepository.findAllByApp(app);
+        return nextId(list);
+    }
+
+    public long nextDegradeRuleId(String app) {
+        List<DegradeRuleEntity> list = degradeRepository.findAllByApp(app);
+        return nextId(list);
+    }
+
+    /**
+     * 把最大的id查询出来自增
+     *
+     * @param list
+     * @return
+     */
+    private long nextId(List list) {
         long id = 0;
         if (list != null) {
-            for (AuthorityRuleEntity rule : list) {
+            for (Object obj : list) {
+                RuleEntity rule = (RuleEntity) obj;
                 if (rule.getId() >= id) {
                     id = rule.getId();
                 }

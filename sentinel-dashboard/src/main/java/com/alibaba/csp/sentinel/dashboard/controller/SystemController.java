@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
+import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.SystemRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
 import com.alibaba.csp.sentinel.dashboard.domain.Result;
 import com.alibaba.csp.sentinel.dashboard.repository.rule.InMemSystemRuleStore;
 
@@ -50,7 +50,7 @@ public class SystemController {
     @Autowired
     private InMemSystemRuleStore repository;
     @Autowired
-    private SentinelApiClient sentinelApiClient;
+    private SentinelApolloApiClient sentinelApiClient;
     @Autowired
     private AuthService<HttpServletRequest> authService;
 
@@ -109,6 +109,7 @@ public class SystemController {
                 + "value must be set >= 0, but " + notNullCount + " values get");
         }
         SystemRuleEntity entity = new SystemRuleEntity();
+        entity.setId(sentinelApiClient.nextSystemRuleId(app));
         entity.setApp(app.trim());
         entity.setIp(ip.trim());
         entity.setPort(port);

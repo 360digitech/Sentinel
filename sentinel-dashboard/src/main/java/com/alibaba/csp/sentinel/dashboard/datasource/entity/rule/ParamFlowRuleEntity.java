@@ -22,6 +22,7 @@ import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowItem;
 import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule;
 import com.alibaba.csp.sentinel.util.AssertUtil;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -71,6 +72,7 @@ public class ParamFlowRuleEntity extends AbstractRuleEntity<ParamFlowRule> {
     }
 
     @JsonIgnore
+    @JSONField(serialize=false)
     public List<ParamFlowItem> getParamFlowItemList() {
         return rule.getParamFlowItemList();
     }
