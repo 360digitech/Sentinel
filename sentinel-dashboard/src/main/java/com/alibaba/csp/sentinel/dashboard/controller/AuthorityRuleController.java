@@ -20,11 +20,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
+import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
@@ -35,6 +35,7 @@ import com.alibaba.csp.sentinel.dashboard.repository.rule.RuleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,7 +57,8 @@ public class AuthorityRuleController {
     private final Logger logger = LoggerFactory.getLogger(AuthorityRuleController.class);
 
     @Autowired
-    private SentinelApolloApiClient sentinelApiClient;
+    @Qualifier("sentinelApolloApiImpl")
+    private SentinelPersistenceApiService sentinelApiClient;
     @Autowired
     private RuleRepository<AuthorityRuleEntity, Long> repository;
 

@@ -18,18 +18,17 @@ package com.alibaba.csp.sentinel.dashboard.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.csp.sentinel.dashboard.client.CommandNotFoundException;
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
+import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
@@ -42,6 +41,7 @@ import com.alibaba.csp.sentinel.dashboard.util.VersionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,7 +63,8 @@ public class ParamFlowRuleController {
     private final Logger logger = LoggerFactory.getLogger(ParamFlowRuleController.class);
 
     @Autowired
-    private SentinelApolloApiClient sentinelApiClient;
+    @Qualifier("sentinelApolloApiImpl")
+    private SentinelPersistenceApiService sentinelApiClient;
     @Autowired
     private AppManagement appManagement;
     @Autowired

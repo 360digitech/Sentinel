@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
+import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,7 +37,8 @@ import org.springframework.stereotype.Component;
 public class FlowRuleApiProvider implements DynamicRuleProvider<List<FlowRuleEntity>> {
 
     @Autowired
-    private SentinelApolloApiClient sentinelApiClient;
+    @Qualifier("sentinelApolloApiImpl")
+    private SentinelPersistenceApiService sentinelApiClient;
     @Autowired
     private AppManagement appManagement;
 

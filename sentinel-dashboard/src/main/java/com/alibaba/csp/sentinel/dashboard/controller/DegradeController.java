@@ -20,11 +20,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.csp.sentinel.dashboard.client.SentinelApolloApiClient;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
+import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
@@ -35,6 +35,7 @@ import com.alibaba.csp.sentinel.dashboard.repository.rule.InMemDegradeRuleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,7 +53,8 @@ public class DegradeController {
     @Autowired
     private InMemDegradeRuleStore repository;
     @Autowired
-    private SentinelApolloApiClient sentinelApiClient;
+    @Qualifier("sentinelApolloApiImpl")
+    private SentinelPersistenceApiService sentinelApiClient;
 
     @Autowired
     private AuthService<HttpServletRequest> authService;
