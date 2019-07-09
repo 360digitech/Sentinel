@@ -35,8 +35,6 @@ import java.util.*;
 @Service("sentinelApolloApiImpl")
 public class SentinelApolloApiImpl extends AbstractSentinelApiClient implements SentinelPersistenceApiService {
     private static Logger logger = LoggerFactory.getLogger(SentinelApolloApiImpl.class);
-    @Autowired
-    private SentinelApiClient sentinelApiClient;
 
     public SentinelApolloApiImpl() {
     }
@@ -77,34 +75,29 @@ public class SentinelApolloApiImpl extends AbstractSentinelApiClient implements 
         AssertUtil.notEmpty(app, "Bad app name");
         AssertUtil.notEmpty(ip, "Bad machine IP");
         AssertUtil.isTrue(port > 0, "Bad machine port");
-        sentinelApiClient.setParamFlowRuleOfMachine(app, ip, port, rules);
         setRules(app, PARAM_FLOW_TYPE, rules);
     }
 
     @Override
     public boolean setFlowRuleOfMachine(String app, String ip, int port, List<FlowRuleEntity> rules) {
-        sentinelApiClient.setFlowRuleOfMachine(app, ip, port, rules);
         setRules(app, FLOW_RULE_TYPE, rules);
         return true;
     }
 
     @Override
     public boolean setDegradeRuleOfMachine(String app, String ip, int port, List<DegradeRuleEntity> rules) {
-        sentinelApiClient.setDegradeRuleOfMachine(app, ip, port, rules);
         setRules(app, DEGRADE_RULE_TYPE, rules);
         return true;
     }
 
     @Override
     public boolean setSystemRuleOfMachine(String app, String ip, int port, List<SystemRuleEntity> rules) {
-        sentinelApiClient.setSystemRuleOfMachine(app, ip, port, rules);
         setRules(app, SYSTEM_RULE_TYPE, rules);
         return true;
     }
 
     @Override
     public boolean setAuthorityRuleOfMachine(String app, String ip, int port, List<AuthorityRuleEntity> rules) {
-        sentinelApiClient.setAuthorityRuleOfMachine(app, ip, port, rules);
         setRules(app, AUTHORITY_TYPE, rules);
         return true;
     }
