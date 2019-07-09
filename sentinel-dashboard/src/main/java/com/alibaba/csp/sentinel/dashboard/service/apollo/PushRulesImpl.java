@@ -3,14 +3,14 @@ package com.alibaba.csp.sentinel.dashboard.service.apollo;
 import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.*;
 import com.alibaba.csp.sentinel.dashboard.discovery.AppInfo;
-import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
+import com.alibaba.csp.sentinel.dashboard.service.apollo.jobs.PushRulesJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -22,10 +22,8 @@ import java.util.Set;
  * @data 2019-07-09
  */
 @Component
-public class PushRulesJob {
-    private static Logger logger = LoggerFactory.getLogger(PushRulesJob.class);
-    @Autowired
-    private AppManagement appManagement;
+public class PushRulesImpl {
+    private static Logger logger = LoggerFactory.getLogger(PushRulesImpl.class);
     @Autowired
     private SentinelApiClient sentinelApiClient;
     @Autowired
@@ -44,20 +42,10 @@ public class PushRulesJob {
     @Qualifier("authorityRuleApolloProvider")
     private DynamicRuleProvider<List<AuthorityRuleEntity>> authorityRuleProvider;
 
-    @Scheduled(fixedDelay = 1000 * 30)
-    public void push() {
-        Set<AppInfo> apps = appManagement.getBriefApps();
-        if (!CollectionUtils.isEmpty(apps)) {
-            for (AppInfo app : apps) {
-                if (!app.isDead()) {
-                    pushAllMachines(app);
-                }
-            }
-        }
-    }
-
-    private void pushAllMachines(AppInfo app) {
+    @Async("asyncServiceExecutor")
+    public void pushAllMachines(AppInfo app) {
         Set<MachineInfo> machines = app.getMachines();
+        logger.info("pushAllMachines ThreadName:{}", Thread.currentThread().getName());
         if (!CollectionUtils.isEmpty(machines)) {
             try {
                 List<FlowRuleEntity> flowRules = flowRuleProvider.getRules(app.getApp());
@@ -79,5 +67,4 @@ public class PushRulesJob {
             }
         }
     }
-
 }
