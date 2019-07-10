@@ -73,39 +73,45 @@ public class SentinelApolloApiImpl extends AbstractSentinelApiClient implements 
     }
 
     @Override
-    public void setParamFlowRuleOfMachine(String app, String ip, int port, List<ParamFlowRuleEntity> rules) {
-        AssertUtil.notEmpty(app, "Bad app name");
-        AssertUtil.notEmpty(ip, "Bad machine IP");
-        AssertUtil.isTrue(port > 0, "Bad machine port");
-        sentinelApiClient.setParamFlowRuleOfMachine(app, ip, port, rules);
-        setRules(app, PARAM_FLOW_TYPE, rules);
+    public void setParamFlowRuleOfMachine(ParamFlowRuleEntity entity, boolean isDelete) {
+        AssertUtil.notEmpty(entity.getApp(), "Bad app name");
+        AssertUtil.notEmpty(entity.getIp(), "Bad machine IP");
+        AssertUtil.isTrue(entity.getPort() > 0, "Bad machine port");
+        List<ParamFlowRuleEntity> rules = super.unionParamFlow(entity, isDelete);
+        sentinelApiClient.setParamFlowRuleOfMachine(entity.getApp(), entity.getIp(), entity.getPort(), rules);
+        setRules(entity.getApp(), PARAM_FLOW_TYPE, rules);
     }
 
     @Override
-    public boolean setFlowRuleOfMachine(String app, String ip, int port, List<FlowRuleEntity> rules) {
-        sentinelApiClient.setFlowRuleOfMachine(app, ip, port, rules);
-        setRules(app, FLOW_RULE_TYPE, rules);
+    public boolean setFlowRuleOfMachine(FlowRuleEntity entity, boolean isDelete) {
+        List<FlowRuleEntity> rules = super.unionFlow(entity, isDelete);
+        sentinelApiClient.setFlowRuleOfMachine(entity.getApp(), entity.getIp(), entity.getPort(), rules);
+        setRules(entity.getApp(), FLOW_RULE_TYPE, rules);
+        return true;
+    }
+
+
+    @Override
+    public boolean setDegradeRuleOfMachine(DegradeRuleEntity entity, boolean isDelete) {
+        List<DegradeRuleEntity> rules = super.unionDegrade(entity, isDelete);
+        sentinelApiClient.setDegradeRuleOfMachine(entity.getApp(), entity.getIp(), entity.getPort(), rules);
+        setRules(entity.getApp(), DEGRADE_RULE_TYPE, rules);
         return true;
     }
 
     @Override
-    public boolean setDegradeRuleOfMachine(String app, String ip, int port, List<DegradeRuleEntity> rules) {
-        sentinelApiClient.setDegradeRuleOfMachine(app, ip, port, rules);
-        setRules(app, DEGRADE_RULE_TYPE, rules);
+    public boolean setSystemRuleOfMachine(SystemRuleEntity entity, boolean isDelete) {
+        List<SystemRuleEntity> rules = super.unionSystem(entity, isDelete);
+        sentinelApiClient.setSystemRuleOfMachine(entity.getApp(), entity.getIp(), entity.getPort(), rules);
+        setRules(entity.getApp(), SYSTEM_RULE_TYPE, rules);
         return true;
     }
 
     @Override
-    public boolean setSystemRuleOfMachine(String app, String ip, int port, List<SystemRuleEntity> rules) {
-        sentinelApiClient.setSystemRuleOfMachine(app, ip, port, rules);
-        setRules(app, SYSTEM_RULE_TYPE, rules);
-        return true;
-    }
-
-    @Override
-    public boolean setAuthorityRuleOfMachine(String app, String ip, int port, List<AuthorityRuleEntity> rules) {
-        sentinelApiClient.setAuthorityRuleOfMachine(app, ip, port, rules);
-        setRules(app, AUTHORITY_TYPE, rules);
+    public boolean setAuthorityRuleOfMachine(AuthorityRuleEntity entity, boolean isDelete) {
+        List<AuthorityRuleEntity> rules = super.unionAuthority(entity, isDelete);
+        sentinelApiClient.setAuthorityRuleOfMachine(entity.getApp(), entity.getIp(), entity.getPort(), rules);
+        setRules(entity.getApp(), AUTHORITY_TYPE, rules);
         return true;
     }
 

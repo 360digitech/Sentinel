@@ -28,6 +28,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author Carpenter Lee
  */
 @SpringBootApplication
+@EnableAsync
+@EnableScheduling
 public class DashboardApplication {
 
     public static void main(String[] args) {

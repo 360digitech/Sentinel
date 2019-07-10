@@ -27,7 +27,6 @@ import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.domain.Result;
 import com.alibaba.csp.sentinel.dashboard.repository.rule.InMemoryRuleRepositoryAdapter;
 
@@ -148,7 +147,7 @@ public class FlowControllerV1 {
         if (checkResult != null) {
             return checkResult;
         }
-        entity.setId(sentinelApiClient.nextFlowRuleId(entity.getApp()));
+        entity.setId(null);
         Date date = new Date();
         entity.setGmtCreate(date);
         entity.setGmtModified(date);
@@ -156,11 +155,12 @@ public class FlowControllerV1 {
         entity.setResource(entity.getResource().trim());
         try {
             entity = repository.save(entity);
+            entity.setId(null);
         } catch (Throwable throwable) {
             logger.error("Failed to add flow rule", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(entity.getApp(), entity.getIp(), entity.getPort())) {
+        if (!publishRules(entity, false)) {
             logger.error("Publish flow rules failed after rule add");
         }
         return Result.ofSuccess(entity);
@@ -241,7 +241,7 @@ public class FlowControllerV1 {
             logger.error("save error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(entity.getApp(), entity.getIp(), entity.getPort())) {
+        if (!publishRules(entity, false)) {
             logger.info("publish flow rules fail after rule update");
         }
         return Result.ofSuccess(entity);
@@ -263,14 +263,13 @@ public class FlowControllerV1 {
         } catch (Exception e) {
             return Result.ofFail(-1, e.getMessage());
         }
-        if (!publishRules(oldEntity.getApp(), oldEntity.getIp(), oldEntity.getPort())) {
+        if (!publishRules(oldEntity, true)) {
             logger.info("publish flow rules fail after rule delete");
         }
         return Result.ofSuccess(id);
     }
 
-    private boolean publishRules(String app, String ip, Integer port) {
-        List<FlowRuleEntity> rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));
-        return sentinelApiClient.setFlowRuleOfMachine(app, ip, port, rules);
+    private boolean publishRules(FlowRuleEntity entity, boolean isDelete) {
+        return sentinelApiClient.setFlowRuleOfMachine(entity, isDelete);
     }
 }

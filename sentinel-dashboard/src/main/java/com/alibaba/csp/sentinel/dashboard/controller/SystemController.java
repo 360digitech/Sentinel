@@ -27,7 +27,6 @@ import com.alibaba.csp.sentinel.dashboard.service.SentinelPersistenceApiService;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.SystemRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.domain.Result;
 import com.alibaba.csp.sentinel.dashboard.repository.rule.InMemSystemRuleStore;
 
@@ -108,10 +107,9 @@ public class SystemController {
         int notNullCount = countNotNullAndNotNegative(avgLoad, avgRt, maxThread, qps);
         if (notNullCount != 1) {
             return Result.ofFail(-1, "only one of [avgLoad, avgRt, maxThread, qps] "
-                + "value must be set >= 0, but " + notNullCount + " values get");
+                    + "value must be set >= 0, but " + notNullCount + " values get");
         }
         SystemRuleEntity entity = new SystemRuleEntity();
-        entity.setId(sentinelApiClient.nextSystemRuleId(app));
         entity.setApp(app.trim());
         entity.setIp(ip.trim());
         entity.setPort(port);
@@ -141,11 +139,12 @@ public class SystemController {
         entity.setGmtModified(date);
         try {
             entity = repository.save(entity);
+            entity.setId(null);
         } catch (Throwable throwable) {
             logger.error("add error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(app, ip, port)) {
+        if (!publishRules(entity, false)) {
             logger.info("publish system rules fail after rule add");
         }
         return Result.ofSuccess(entity);
@@ -199,7 +198,7 @@ public class SystemController {
             logger.error("save error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(entity.getApp(), entity.getIp(), entity.getPort())) {
+        if (!publishRules(entity, false)) {
             logger.info("publish system rules fail after rule update");
         }
         return Result.ofSuccess(entity);
@@ -223,14 +222,13 @@ public class SystemController {
             logger.error("delete error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(oldEntity.getApp(), oldEntity.getIp(), oldEntity.getPort())) {
+        if (!publishRules(oldEntity, true)) {
             logger.info("publish system rules fail after rule delete");
         }
         return Result.ofSuccess(id);
     }
 
-    private boolean publishRules(String app, String ip, Integer port) {
-        List<SystemRuleEntity> rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));
-        return sentinelApiClient.setSystemRuleOfMachine(app, ip, port, rules);
+    private boolean publishRules(SystemRuleEntity entity, boolean isDelete) {
+        return sentinelApiClient.setSystemRuleOfMachine(entity, isDelete);
     }
 }

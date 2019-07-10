@@ -68,95 +68,45 @@ public interface SentinelPersistenceApiService {
     /**
      * 设置ParamFlowRuleEntity
      *
-     * @param app
-     * @param ip
-     * @param port
-     * @param rules
+     * @param entity
+     * @param isDelete
      * @return
      */
-    void setParamFlowRuleOfMachine(String app, String ip, int port, List<ParamFlowRuleEntity> rules);
+    void setParamFlowRuleOfMachine(ParamFlowRuleEntity entity, boolean isDelete);
 
     /**
      * 设置FlowRuleEntity
      *
-     * @param app
-     * @param ip
-     * @param port
-     * @param rules
+     * @param entity
+     * @param isDelete
      * @return whether successfully set the rules.
      */
-    boolean setFlowRuleOfMachine(String app, String ip, int port, List<FlowRuleEntity> rules);
+    boolean setFlowRuleOfMachine(FlowRuleEntity entity, boolean isDelete);
 
     /**
      * 设置DegradeRuleEntity
      *
-     * @param app
-     * @param ip
-     * @param port
-     * @param rules
+     * @param entity
+     * @param isDelete
      * @return whether successfully set the rules.
      */
-    boolean setDegradeRuleOfMachine(String app, String ip, int port, List<DegradeRuleEntity> rules);
+    boolean setDegradeRuleOfMachine(DegradeRuleEntity entity, boolean isDelete);
 
     /**
      * 设置SystemRuleEntity
      *
-     * @param app
-     * @param ip
-     * @param port
-     * @param rules
+     * @param entity
+     * @param isDelete
      * @return whether successfully set the rules.
      */
-    boolean setSystemRuleOfMachine(String app, String ip, int port, List<SystemRuleEntity> rules);
+    boolean setSystemRuleOfMachine(SystemRuleEntity entity, boolean isDelete);
 
     /**
      * 设置AuthorityRuleEntity
      *
-     * @param app
-     * @param ip
-     * @param port
-     * @param rules
+     * @param entity
+     * @param isDelete
      * @return
      */
-    boolean setAuthorityRuleOfMachine(String app, String ip, int port, List<AuthorityRuleEntity> rules);
-
-    /**
-     * 获取新的ID
-     *
-     * @param app
-     * @return
-     */
-    long nextSystemRuleId(String app);
-
-    /**
-     * 获取新的ID
-     *
-     * @param app
-     * @return
-     */
-    long nextParamFlowId(String app);
-
-    /**
-     * 获取新的ID
-     *
-     * @param app
-     * @return
-     */
-    long nextFlowRuleId(String app);
-
-    /**
-     * 获取新的ID
-     *
-     * @param app
-     * @return
-     */
-    long nextAuthorityRuleId(String app);
-
-    /**
-     * 获取新的ID
-     *
-     * @param app
-     * @return
-     */
-    long nextDegradeRuleId(String app);
+    boolean setAuthorityRuleOfMachine(AuthorityRuleEntity entity, boolean isDelete);
 }

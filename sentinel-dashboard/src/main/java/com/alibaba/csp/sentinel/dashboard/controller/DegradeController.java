@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.AuthUser;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
@@ -120,7 +119,6 @@ public class DegradeController {
             return Result.ofFail(-1, "Invalid grade: " + grade);
         }
         DegradeRuleEntity entity = new DegradeRuleEntity();
-        entity.setId(sentinelApiClient.nextDegradeRuleId(app));
         entity.setApp(app.trim());
         entity.setIp(ip.trim());
         entity.setPort(port);
@@ -134,11 +132,12 @@ public class DegradeController {
         entity.setGmtModified(date);
         try {
             entity = repository.save(entity);
+            entity.setId(null);
         } catch (Throwable throwable) {
             logger.error("add error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(app, ip, port)) {
+        if (!publishRules(entity, false)) {
             logger.info("publish degrade rules fail after rule add");
         }
         return Result.ofSuccess(entity);
@@ -190,7 +189,7 @@ public class DegradeController {
             logger.error("save error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(entity.getApp(), entity.getIp(), entity.getPort())) {
+        if (!publishRules(entity, false)) {
             logger.info("publish degrade rules fail after rule update");
         }
         return Result.ofSuccess(entity);
@@ -215,14 +214,13 @@ public class DegradeController {
             logger.error("delete error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
-        if (!publishRules(oldEntity.getApp(), oldEntity.getIp(), oldEntity.getPort())) {
+        if (!publishRules(oldEntity, true)) {
             logger.info("publish degrade rules fail after rule delete");
         }
         return Result.ofSuccess(id);
     }
 
-    private boolean publishRules(String app, String ip, Integer port) {
-        List<DegradeRuleEntity> rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));
-        return sentinelApiClient.setDegradeRuleOfMachine(app, ip, port, rules);
+    private boolean publishRules(DegradeRuleEntity entity, boolean isDelete) {
+        return sentinelApiClient.setDegradeRuleOfMachine(entity, isDelete);
     }
 }

@@ -153,7 +153,7 @@ public class FlowControllerV2 {
         if (checkResult != null) {
             return checkResult;
         }
-        entity.setId(sentinelApiClient.nextFlowRuleId(entity.getApp()));
+        entity.setId(null);
         Date date = new Date();
         entity.setGmtCreate(date);
         entity.setGmtModified(date);
@@ -161,7 +161,8 @@ public class FlowControllerV2 {
         entity.setResource(entity.getResource().trim());
         try {
             entity = repository.save(entity);
-            publishRules(entity.getApp());
+            entity.setId(null);
+            publishRules(entity, false);
         } catch (Throwable throwable) {
             logger.error("Failed to add flow rule", throwable);
             return Result.ofThrowable(-1, throwable);
@@ -203,7 +204,7 @@ public class FlowControllerV2 {
             if (entity == null) {
                 return Result.ofFail(-1, "save entity fail");
             }
-            publishRules(oldEntity.getApp());
+            publishRules(oldEntity, false);
         } catch (Throwable throwable) {
             logger.error("Failed to update flow rule", throwable);
             return Result.ofThrowable(-1, throwable);
@@ -224,15 +225,14 @@ public class FlowControllerV2 {
         authUser.authTarget(oldEntity.getApp(), PrivilegeType.DELETE_RULE);
         try {
             repository.delete(id);
-            publishRules(oldEntity.getApp());
+            publishRules(oldEntity, true);
         } catch (Exception e) {
             return Result.ofFail(-1, e.getMessage());
         }
         return Result.ofSuccess(id);
     }
 
-    private void publishRules(/*@NonNull*/ String app) throws Exception {
-        List<FlowRuleEntity> rules = repository.findAllByApp(app);
-        rulePublisher.publish(app, rules);
+    private void publishRules(FlowRuleEntity entity, boolean isDelete) throws Exception {
+        sentinelApiClient.setFlowRuleOfMachine(entity, isDelete);
     }
 }
