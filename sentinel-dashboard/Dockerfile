@@ -17,7 +17,7 @@ FROM openjdk:8-jdk AS BUILD
 
 COPY sentinel-dashboard/ /source/sentinel/sentinel-dashboard/
 WORKDIR /source/sentinel/sentinel-dashboard
-RUN ./mvnw clean package -Dmaven.test.skip=true
+RUN sh mvnw clean package -Dmaven.test.skip=true
 
 FROM openjdk:8-jdk
 LABEL maintainer="caodegao-jk@360jinrong.net"
