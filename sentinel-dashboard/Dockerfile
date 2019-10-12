@@ -13,17 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8-jdk AS BUILD
+FROM r.addops.soft.360.cn/finloan-dev/maven:3.6.2_jdk_8-master-20191012174652-a13b3ab AS BUILD
 
 COPY sentinel-dashboard/ /source/sentinel/sentinel-dashboard/
 WORKDIR /source/sentinel/sentinel-dashboard
-RUN sh mvnw clean package -Dmaven.test.skip=true
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM openjdk:8-jdk
 LABEL maintainer="caodegao-jk@360jinrong.net"
 COPY --from=BUILD /source/sentinel/sentinel-dashboard/target/sentinel-dashboard.jar /app.jar
 
-ENTRYPOINT ["java","\-Dserver.port=18720","\-Dspring.profiles.active=${ENV}","-jar","/app.jar"]
+ENTRYPOINT ["java","-Dserver.port=18720","-Dspring.profiles.active=${ENV}","-jar","/app.jar"]
 
 
 # docker build -t sentinel-dashboard .
