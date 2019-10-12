@@ -14,10 +14,8 @@
 # limitations under the License.
 
 FROM openjdk:8-jdk AS BUILD
-COPY pom.xml /source/sentinel/sentinel-dashboard/pom.xml
-COPY src/ /source/sentinel/sentinel-dashboard/src/
-COPY .mvn/ /source/sentinel/sentinel-dashboard/.mvn/
-COPY mvnw /source/sentinel/sentinel-dashboard/mvnw
+
+COPY sentinel-dashboard/ /source/sentinel/sentinel-dashboard/
 WORKDIR /source/sentinel/sentinel-dashboard
 RUN ./mvnw clean package -Dmaven.test.skip=true
 
